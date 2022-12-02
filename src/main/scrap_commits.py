@@ -6,11 +6,11 @@ from urllib.parse import parse_qs, urlparse
 from collections import OrderedDict, namedtuple
 from print_commits import print_commits
 
-GITHUB_API = 'https://api.github.com/'
-COMMITS_API = 'repos/{}/{}/commits?'
-QUERY_PARAMETERS = 'page={}&per_page={}'
+GITHUB_API = "https://api.github.com/"
+COMMITS_API = "repos/{}/{}/commits?"
+QUERY_PARAMETERS = "page={}&per_page={}"
 
-Commit = namedtuple('Commit', ['num', 'message', 'removed', 'added'])
+Commit = namedtuple("Commit", ["num", "message", "removed", "added"])
 commits = OrderedDict()
 
 
@@ -28,8 +28,9 @@ def count_commits_pages(owner: str, repo: str, commits_on_page: int = 100) -> in
     return commits_count
 
 
-async def download_commits_page(session: aiohttp.ClientSession, owner: str, repo: str, page: int,
-                                commits_on_page: int = 100):
+async def download_commits_page(
+    session: aiohttp.ClientSession, owner: str, repo: str, page: int, commits_on_page: int = 100
+):
     print(f"Processing page {page}")
     url = GITHUB_API + COMMITS_API.format(owner, repo) + QUERY_PARAMETERS.format(page, commits_on_page)
     async with session.get(url) as response:
@@ -38,17 +39,20 @@ async def download_commits_page(session: aiohttp.ClientSession, owner: str, repo
         for i in commits_list:
             commit_number = page * commits_on_page + commit_counter
             try:
-                commit_info = requests.get(i['url']).json()
+                commit_info = requests.get(i["url"]).json()
             except TypeError:
-                print('\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m')
+                print("\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
                 print(commits_list)
             try:
-                commits[commit_number] = Commit(commit_number, i['commit']['message'],
-                                                commit_info['stats']['deletions'],
-                                                commit_info['stats']['additions'])
+                commits[commit_number] = Commit(
+                    commit_number,
+                    i["commit"]["message"],
+                    commit_info["stats"]["deletions"],
+                    commit_info["stats"]["additions"],
+                )
                 commit_counter += 1
             except KeyError:
-                print('\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m')
+                print("\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
                 print(commit_info)
 
 
