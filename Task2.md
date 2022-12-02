@@ -6,3 +6,4 @@ need to write any code, just describe in text what you would do and why.**
    can do in IDEA to distinguish between functional commits and refactoring.
 2. Take the code of the file in which the commit is made. Distinguish the importance of the change by the received
    arguments of the function in which the change is made
+3. Process the commit message and try to extract some features
