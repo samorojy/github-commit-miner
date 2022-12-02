@@ -1,7 +1,7 @@
 import csv
 from collections import OrderedDict, namedtuple
 
-HEADER = ["commit_#", "commit_message", "diff_", "diff_-"]
+HEADER = ["commit_#", "commit_message", "diff_+", "diff_-"]
 
 
 def print_commits(output_path: str, commits: OrderedDict):
@@ -9,4 +9,4 @@ def print_commits(output_path: str, commits: OrderedDict):
         writer = csv.writer(file)
         writer.writerow(HEADER)
         for i in commits.values():
-            writer.writerow([i[0], i[1], i[2], i[3]])
+            writer.writerow([i[0], i[1], i[3], i[2]])

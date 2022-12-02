@@ -12,7 +12,7 @@ def main():
     parser.add_argument("repo")
     parser.add_argument("-p", "--pages", type=int, default="-1")
     args = parser.parse_args()
-    scrap_commits(args.output_path, args.owner, args.repo, args.branch, int(args.pages))
+    scrap_commits(args.output_path, args.owner, args.repo, int(args.pages))
     print(f"Successfully printed results into {args.output_path}")
 
 

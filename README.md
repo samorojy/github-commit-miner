@@ -16,3 +16,7 @@ For example:
 
 This command will save commit list from [huggingface/transformers](https://github.com/huggingface/transformers) to
 result.csv
+
+One more example:
+
+`python src/main/main.py result.csv samorojy github-commit-miner`

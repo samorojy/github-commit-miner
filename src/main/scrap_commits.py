@@ -19,12 +19,17 @@ def count_commits_pages(owner: str, repo: str, commits_on_page: int = 100) -> in
     Returns the number of pages of commits to a GitHub repository.
     """
     url = GITHUB_API + COMMITS_API.format(owner, repo) + QUERY_PARAMETERS.format(1, commits_on_page)
+    commits_count = 1
     r = requests.get(url)
     links = r.links
-    rel_last_link_url = urlparse(links["last"]["url"])
-    rel_last_link_url_args = parse_qs(rel_last_link_url.query)
-    rel_last_link_url_page_arg = rel_last_link_url_args["page"][0]
-    commits_count = int(rel_last_link_url_page_arg)
+    try:
+        rel_last_link_url = urlparse(links["last"]["url"])
+        rel_last_link_url_args = parse_qs(rel_last_link_url.query)
+        rel_last_link_url_page_arg = rel_last_link_url_args["page"][0]
+        commits_count = int(rel_last_link_url_page_arg)
+    except KeyError:
+        print("\033[91mThere are 1 commits page or your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
+        print(r.json())
     return commits_count
 
 
