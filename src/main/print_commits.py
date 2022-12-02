@@ -9,4 +9,7 @@ def print_commits(output_path: str, commits: OrderedDict):
         writer = csv.writer(file)
         writer.writerow(HEADER)
         for i in commits.values():
-            writer.writerow([i[0], i[1], i[3], i[2]])
+            try:
+                writer.writerow([i[0], i[1], i[3], i[2]])
+            except UnicodeEncodeError:
+                print("\033[91mCommit info contains weird symbols\n \033[0m")

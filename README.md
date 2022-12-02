@@ -20,3 +20,5 @@ result.csv
 One more example:
 
 `python src/main/main.py result.csv samorojy github-commit-miner`
+
+If your API limit is exceeded use --token flag
