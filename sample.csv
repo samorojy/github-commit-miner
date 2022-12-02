@@ -1,0 +1,34 @@
+commit_#,commit_message,diff_+,diff_-
+0,"Merge pull request #1 from samorojy/work-branch
+
+Added solution",169,1
+1,added solution for question 2,8,0
+2,added final version,16,7
+3,try to fix mypy,1,0
+4,try to fix mypy,2,2
+5,renamed dummy test,0,0
+6,added dummy test,2,0
+7,added empty test directory,0,0
+8,updated requirements.txt,2,0
+9,Merge remote-tracking branch 'origin/work-branch' into work-branch,0,0
+10,reformatted by black,27,22
+11,Merge branch 'master' into work-branch,0,0
+12,stupid typing mistakes fixed,0,0
+13,"Merge pull request #4 from samorojy/fix_black
+
+stupid typing mistakes fixed",0,0
+14,stupid typing mistakes fixed,0,0
+15,Merge branch 'master' into work-branch,1,1
+16,"Merge pull request #3 from samorojy/fix_requirments
+
+renamed requirmemts.txt to requirments.txt",0,0
+17,renamed requirmemts.txt to requirments.txt,0,0
+18,"Merge pull request #2 from samorojy/black
+
+added requirments.txt with black",1,0
+19,added requirments.txt with black,1,0
+20,added solution without github token,18,13
+21,"added first stage, need to fix printer in file",121,0
+22,added README.md,17,1
+23,Create blank.yml,29,0
+24,Initial commit,332,0
