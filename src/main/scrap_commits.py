@@ -30,34 +30,39 @@ def count_commits_pages(owner: str, repo: str, commits_on_page: int = 100) -> in
 
 async def download_commits_page(session: aiohttp.ClientSession, owner: str, repo: str, page: int,
                                 commits_on_page: int = 100):
+    print(f"Processing page {page}")
     url = GITHUB_API + COMMITS_API.format(owner, repo) + QUERY_PARAMETERS.format(page, commits_on_page)
     async with session.get(url) as response:
         commits_list = await response.json()
+        commit_counter = 0
         for i in commits_list:
+            commit_number = page * commits_on_page + commit_counter
             try:
                 commit_info = requests.get(i['url']).json()
             except TypeError:
                 print('\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m')
                 print(commits_list)
             try:
-                commits[page] = Commit(page, i['commit']['message'], commit_info['stats']['deletions'],
-                                       commit_info['stats']['additions'])
+                commits[commit_number] = Commit(commit_number, i['commit']['message'],
+                                                commit_info['stats']['deletions'],
+                                                commit_info['stats']['additions'])
+                commit_counter += 1
             except KeyError:
                 print('\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m')
                 print(commit_info)
 
 
-async def download_commits(owner: str, repo: str):
+async def download_commits(owner: str, repo: str, pages: int):
     async with aiohttp.ClientSession() as session:
-        pages_num = 1
-        # count_commits_pages(owner, repo)
+        if pages < 0:
+            pages = count_commits_pages(owner, repo)
         tasks = [asyncio.create_task(download_commits_page(session, owner, repo, i)) for i in range(0, pages_num)]
         await asyncio.gather(*tasks)
 
 
-def scrap_commits(output_path: str, owner: str, repo: str, branch: str):
+def scrap_commits(output_path: str, owner: str, repo: str, pages: int):
     """
     Scraping list of commit from given repo and printing it in file
     """
-    asyncio.new_event_loop().run_until_complete(download_commits(owner, repo))
+    asyncio.new_event_loop().run_until_complete(download_commits(owner, repo, pages))
     print_commits(output_path, commits)
