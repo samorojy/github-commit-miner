@@ -60,7 +60,7 @@ async def download_commits(owner: str, repo: str, pages: int):
     async with aiohttp.ClientSession() as session:
         if pages < 0:
             pages = count_commits_pages(owner, repo)
-        tasks = [asyncio.create_task(download_commits_page(session, owner, repo, i)) for i in range(0, pages_num)]
+        tasks = [asyncio.create_task(download_commits_page(session, owner, repo, i)) for i in range(0, pages)]
         await asyncio.gather(*tasks)
 
 
