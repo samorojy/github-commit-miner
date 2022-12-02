@@ -9,18 +9,19 @@ from print_commits import print_commits
 GITHUB_API = "https://api.github.com/"
 COMMITS_API = "repos/{}/{}/commits?"
 QUERY_PARAMETERS = "page={}&per_page={}"
+AUTHORIZATION = "Authorization"
 
 Commit = namedtuple("Commit", ["num", "message", "removed", "added"])
 commits = OrderedDict()
 
 
-def count_commits_pages(owner: str, repo: str, commits_on_page: int = 100) -> int:
+def count_commits_pages(owner: str, repo: str, header: dict, commits_on_page: int = 100) -> int:
     """
     Returns the number of pages of commits to a GitHub repository.
     """
     url = GITHUB_API + COMMITS_API.format(owner, repo) + QUERY_PARAMETERS.format(1, commits_on_page)
     commits_count = 1
-    r = requests.get(url)
+    r = requests.get(url, headers=header)
     links = r.links
     try:
         rel_last_link_url = urlparse(links["last"]["url"])
@@ -34,9 +35,8 @@ def count_commits_pages(owner: str, repo: str, commits_on_page: int = 100) -> in
 
 
 async def download_commits_page(
-    session: aiohttp.ClientSession, owner: str, repo: str, page: int, commits_on_page: int = 100
+    session: aiohttp.ClientSession, owner: str, repo: str, page: int, header: dict, commits_on_page: int = 100
 ):
-    print(f"Processing page {page}")
     url = GITHUB_API + COMMITS_API.format(owner, repo) + QUERY_PARAMETERS.format(page, commits_on_page)
     async with session.get(url) as response:
         commits_list = await response.json()
@@ -44,11 +44,8 @@ async def download_commits_page(
         for i in commits_list:
             commit_number = page * commits_on_page + commit_counter
             try:
-                commit_info = requests.get(i["url"]).json()
-            except TypeError:
-                print("\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
-                print(commits_list)
-            try:
+                commit_info = requests.get(i["url"], headers=header).json()
+                print(f"Processing commit {commit_number}")
                 commits[commit_number] = Commit(
                     commit_number,
                     i["commit"]["message"],
@@ -56,22 +53,28 @@ async def download_commits_page(
                     commit_info["stats"]["additions"],
                 )
                 commit_counter += 1
+            except TypeError:
+                print("\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
+                print(commits_list)
             except KeyError:
                 print("\033[91mProbably your API rate limit exceeded.\nLast accepted respond: \n \033[0m")
                 print(commit_info)
 
 
-async def download_commits(owner: str, repo: str, pages: int):
-    async with aiohttp.ClientSession() as session:
+async def download_commits(owner: str, repo: str, token: str, pages: int):
+    header = {}
+    if token != "":
+        header = {AUTHORIZATION: "token " + token}
+    async with aiohttp.ClientSession(headers=header) as session:
         if pages < 0:
-            pages = count_commits_pages(owner, repo)
-        tasks = [asyncio.create_task(download_commits_page(session, owner, repo, i)) for i in range(0, pages)]
+            pages = count_commits_pages(owner, repo, header)
+        tasks = [asyncio.create_task(download_commits_page(session, owner, repo, i, header)) for i in range(0, pages)]
         await asyncio.gather(*tasks)
 
 
-def scrap_commits(output_path: str, owner: str, repo: str, pages: int):
+def scrap_commits(output_path: str, owner: str, repo: str, token: str, pages: int):
     """
     Scraping list of commit from given repo and printing it in file
     """
-    asyncio.new_event_loop().run_until_complete(download_commits(owner, repo, pages))
+    asyncio.new_event_loop().run_until_complete(download_commits(owner, repo, token, pages))
     print_commits(output_path, commits)
